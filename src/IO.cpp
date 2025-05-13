@@ -15,6 +15,7 @@
 - Global Variables
 ----------------------------------------------------------------------------*/
 uint8_t input_sr[OCTO_TOTAL];
+Button buttons[NUM_BUTTONS];
 
 /*----------------------------------------------------------------------------
 - public Class-Functions
@@ -58,6 +59,7 @@ void IO::createTasks()
 void IO::init()
 {
 	initIOPins();
+	setupButtons();
 }
 
 /*----------------------------------------------------------------------------
@@ -144,4 +146,95 @@ uint8_t IO::readShiftReg(uint32_t dataPin, uint32_t clkPin)
 	}
 
 	return (_byte);
+}
+
+/*----------------------------------------------------------------------------
+- Button-Functions
+----------------------------------------------------------------------------*/
+/******************************************************************************
+* @brief
+* @param  None
+*******************************************************************************/
+void IO::setupButtons()
+{
+	for (uint8_t i = 0; i < (8 * OCTO_TOTAL); i++)
+	{
+		buttons[i].setup(i, LOW, &input_sr[0]);
+		buttons[i + 8].setup(i + 8, LOW, &input_sr[1]);
+	}
+}
+
+/******************************************************************************
+* @brief
+* @param  None
+*******************************************************************************/
+void IO::updateButtons()
+{
+	for (auto& item : buttons)
+		item.listen();
+}
+
+/******************************************************************************
+* @brief
+* @param  None
+*******************************************************************************/
+void IO::handleButtons()
+{
+	uint8_t i = 0;
+	for (auto& item : buttons)
+	{
+		if (item.onPress())
+			vaBut_notify(i);
+
+		//if (item.onRelease())
+		//	vaBut_notify_release(i);
+
+		i++;
+	}
+}
+
+/******************************************************************************
+* @brief
+* @param  None
+*******************************************************************************/
+void vaBut_notify(uint8_t but)
+{
+	switch (but)
+	{
+		case 0:
+			Serial.println("Button0 pressed");
+			break;
+
+		case 1:
+			Serial.println("Button1 pressed");
+			break;
+
+		case 2:
+			Serial.println("Button2 pressed");
+			break;
+
+		case 3:
+			Serial.println("Button3 pressed");
+			break;
+
+		case 8:
+			Serial.println("Button8 pressed");
+			break;
+
+		case 9:
+			Serial.println("Button9 pressed");
+			break;
+
+		case 10:
+			Serial.println("Button10 pressed");
+			break;
+
+		case 11:
+			Serial.println("Button11 pressed");
+			break;
+
+		default:
+			Serial.println("Other Button pressed");
+			break;
+	}
 }
